@@ -1,8 +1,8 @@
 ![GoCardless](https://gocardless.com/resources/logo.png)
 
-## GoCardless PHP Client Library
+## GoCardless CodeIgniter Client Library
 
-The GoCardless PHP client provides a simple PHP interface to the GoCardless
+The GoCardless CodeIgniter client provides a simple CodeIgniter interface to the GoCardless
 API.
 
 If you want to use the library as an individual merchant, refer to the
@@ -15,29 +15,16 @@ you want to support multiple merchant accounts, see the
 #### Install from source
 
 ```console
-$ git clone git://github.com/gocardless/gocardless-php.git
-```
-
-#### Installing from the tarball
-
-```console
-$ curl -L https://github.com/downloads/gocardless/gocardless-php/gocardless-php-v0.1.0.tgz | tar xzv
+$ git clone git://github.com/gocardless/codeigniter-gocardless.git application/third_party/gocardless
 ```
 
 #### Download the Zip
 
-[Click here](https://github.com/downloads/gocardless/gocardless-php/gocardless-php-v0.1.0.zip)
+[Click here](https://github.com/gocardless/codeigniter-gocardless/zipball/0.2.0)
 to download the zip file.
 
-#### Installing with Composer
+#### Installing with Sparks
 
-Add `gocardless/gocardless` to the contents of your composer.json:
-
-```javascript
-{
-    "require": {
-        "gocardless/gocardless": ">=0.1.0"
-    }
-}
+```console
+$ php tools/spark install -v0.2.0 gocardless
 ```
-
