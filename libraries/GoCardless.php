@@ -24,7 +24,7 @@ require 'GoCardless/Exceptions.php';
  */
 class GoCardless {
 
-	const VERSION = '0.1.0';
+	const VERSION = '0.2.0';
 
 	/**
 	 * The environment: sandbox or live
@@ -48,7 +48,7 @@ class GoCardless {
 	 */
 	public static function autoload($class) {
 		if (strpos($class, 'GoCardless') === 0) {
-			require str_replace('_', '/', $class).'.php';
+			require dirname(__FILE__).'/'.str_replace('_', '/', $class).'.php';
 		}
 	}
 
