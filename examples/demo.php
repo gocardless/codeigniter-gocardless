@@ -13,10 +13,10 @@ GoCardless::$environment = 'sandbox';
 
 // Config vars
 $account_details = array(
-  'app_id'        => null,
-  'app_secret'    => null,
-  'merchant_id'   => null,
-  'access_token'  => null
+  'app_id'        => 'eCxrcWDxjYsQ55zhsDTgs6VeKf6YWZP7be/9rY0PGFbeyqmLJV6k84SUQdISLUhf',
+  'app_secret'    => '2utXOc65Hy9dolp3urYBMoIN0DM11Q9uuoboFDkHY3nzsugqcuzD1FuJYA7X9TP+',
+  'merchant_id'   => '258584',
+  'access_token'  => 'ShFGfoXO+GOKEiMeoeMPUvSTTq9HC0v3BRLXo8eSUifbZOtneYqqNECPa+QK6AdL'
 );
 // Initialize GoCardless
 GoCardless::set_account_details($account_details);
