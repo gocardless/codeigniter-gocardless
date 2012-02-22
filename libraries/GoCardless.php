@@ -24,7 +24,7 @@ require 'GoCardless/Exceptions.php';
  */
 class GoCardless {
 
-	const VERSION = '0.2.0';
+	const VERSION = '0.1.0';
 
 	/**
 	 * The environment: sandbox or live
