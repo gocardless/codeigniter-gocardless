@@ -28,7 +28,7 @@ class GoCardless_Request {
    * Configure a POST request
    *
    * @param string $url The URL to make the request to
-   * @param array $data The parameters to use for the POST body
+   * @param array $params The parameters to use for the POST body
    *
    * @return string The response text
    */
@@ -40,7 +40,7 @@ class GoCardless_Request {
    * Configure a PUT request
    *
    * @param string $url The URL to make the request to
-   * @param array $data The parameters to use for the PUT body
+   * @param array $params The parameters to use for the PUT body
    *
    * @return string The response text
    */
@@ -102,6 +102,9 @@ class GoCardless_Request {
     } elseif ($method == 'put') {
 
       $curl_options[CURLOPT_PUT] = 1;
+      $fh = fopen('php://memory', 'rw+');
+      $curl_options[CURLOPT_INFILE] = $fh;
+      $curl_options[CURLOPT_INFILESIZE] = 0;
 
     }
 
@@ -140,7 +143,8 @@ class GoCardless_Request {
 
       $response = json_decode($result, true);
 
-      // Urgh
+      // Convert json blob API error messages into a readable string
+      // One layer of recursion due to arbitrary keys
       $message = '';
       if (is_array($response)) {
         foreach ($response as $key => $value) {
@@ -160,7 +164,12 @@ class GoCardless_Request {
 
     curl_close($ch);
 
+    if (isset($fh)) {
+      fclose($fh);
+    }
+
     return json_decode($result, true);
+
   }
 
 }

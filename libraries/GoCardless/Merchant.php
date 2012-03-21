@@ -31,7 +31,7 @@ class GoCardless_Merchant {
 
     $this->client = $client;
 
-	if (is_array($attrs)) {
+	  if (is_array($attrs)) {
     	foreach ($attrs as $key => $value) {
 	      $this->$key = $value;
 	    }
@@ -48,9 +48,10 @@ class GoCardless_Merchant {
    */
   public static function find($id) {
 
-	$client = GoCardless::$client;
+    $client = GoCardless::$client;
 
-	return new self($client, $client->request('get', self::$endpoint . '/' . $id));
+	  return new self($client, $client->request('get', self::$endpoint . '/' . $id));
+
   }
 
   /**
@@ -62,7 +63,9 @@ class GoCardless_Merchant {
    * @return object The bill object
    */
   public static function find_with_client($client, $id) {
+
     return new self($client, $client->request('get', self::$endpoint . '/' . $id));
+
   }
 
   /**
@@ -77,7 +80,7 @@ class GoCardless_Merchant {
     $endpoint = self::$endpoint . '/' . $this->id . '/subscriptions';
 
     foreach ($this->client->request('get', $endpoint) as $value) {
-      $objects[] = new GoCardless_Subscriptions($this->client, $value);
+      $objects[] = new GoCardless_Subscription($this->client, $value);
     }
 
     return $objects;
@@ -110,14 +113,15 @@ class GoCardless_Merchant {
   public function users() {
 
     $endpoint = self::$endpoint . '/' . $this->id . '/users';
-    
+
     $objects = array();
 
     foreach ($this->client->request('get', $endpoint, $params) as $value) {
-      $objects[] = new GoCardless_Users($this->client, $value);
+      $objects[] = new GoCardless_User($this->client, $value);
     }
 
     return $objects;
+
   }
 
   /**
@@ -136,6 +140,7 @@ class GoCardless_Merchant {
     }
 
     return $objects;
+
   }
 
 }

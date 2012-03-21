@@ -24,12 +24,17 @@ require 'GoCardless/Exceptions.php';
  */
 class GoCardless {
 
+  /**
+   * The environment: sandbox or live
+   *
+   * @var constant VERSION
+   */
 	const VERSION = '0.2.0';
 
 	/**
 	 * The environment: sandbox or live
 	 *
-	 * @var array $environment
+	 * @var string $environment
 	 */
 	public static $environment;
 
@@ -44,24 +49,37 @@ class GoCardless {
    * Class References
    * Help map references to static classes for use in mocking
    *
-   * @var object $classes
+   * @var array $classes
    */
   protected static $classes = array(
   	'Request' => 'GoCardless_Request',
   );
 
-  public function setClass($name, $class) {
-	self::$classes[$name] = $class;
+  /**
+   * Set the class to use
+   *
+   * @param string $name The nickname of the class to load
+   * @param object $class The class to load
+   */
+  public static function setClass($name, $class) {
+	  self::$classes[$name] = $class;
   }
 
-  public function getClass($name) {
-	return self::$classes[$name];
+  /**
+   * Get the class to use
+   *
+   * @param string $name The nickname of the class to get
+   *
+   * @return The loaded class
+   */
+  public static function getClass($name) {
+	  return self::$classes[$name];
   }
 
 	/**
 	 * Autoload sub-classes
 	 *
-	 * @var object $class Name of the class to load
+   * @param string $class Name of the class to load
 	 */
 	public static function autoload($class) {
 		if (strpos($class, 'GoCardless') === 0) {
