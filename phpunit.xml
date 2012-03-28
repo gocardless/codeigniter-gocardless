@@ -2,8 +2,8 @@
 
 <phpunit colors="true" stopOnFailure="false" bootstrap="tests/bootstrap.php">
 	<testsuites>
-		<testsuite name="lib">
-			<directory suffix=".php">./tests/lib</directory>
+		<testsuite name="libraries">
+			<directory>./tests</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>

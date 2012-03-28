@@ -31,11 +31,11 @@ class GoCardless_PreAuthorization {
 
     $this->client = $client;
 
-	  if (is_array($attrs)) {
-	    foreach ($attrs as $key => $value) {
-	      $this->$key = $value;
-	    }
-	  }
+    if (is_array($attrs)) {
+      foreach ($attrs as $key => $value) {
+        $this->$key = $value;
+      }
+    }
 
   }
 
@@ -50,7 +50,8 @@ class GoCardless_PreAuthorization {
 
     $endpoint = self::$endpoint . '/' . $id;
 
-    return new self(GoCardless::$client, GoCardless::$client->request('get', $endpoint));
+    return new self(GoCardless::$client, GoCardless::$client->request('get',
+      $endpoint));
 
   }
 
@@ -100,7 +101,8 @@ class GoCardless_PreAuthorization {
 
     $endpoint = GoCardless_Bill::$endpoint;
 
-    return new GoCardless_Bill($this->client, $this->client->request('post', $endpoint));
+    return new GoCardless_Bill($this->client, $this->client->request('post',
+      $endpoint));
 
   }
 

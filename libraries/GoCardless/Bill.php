@@ -31,11 +31,11 @@ class GoCardless_Bill {
 
     $this->client = $client;
 
-	  if (is_array($attrs)) {
-    	foreach ($attrs as $key => $value) {
-	      $this->$key = $value;
-	    }
-	  }
+    if (is_array($attrs)) {
+      foreach ($attrs as $key => $value) {
+        $this->$key = $value;
+      }
+    }
 
   }
 
@@ -51,7 +51,9 @@ class GoCardless_Bill {
 
     $endpoint = self::$endpoint . '/' . $id;
 
-    $client or $client = parent::$client;
+    if ($client == null) {
+      $client = GoCardless::$client;
+    }
 
     return new self($client, $client->request('get', $endpoint));
 
@@ -65,7 +67,7 @@ class GoCardless_Bill {
    *
    * @return object The bill object
    */
-  public function find_with_client($client, $id) {
+  public static function find_with_client($client, $id) {
 
     $endpoint = self::$endpoint . '/' . $id;
 
@@ -86,7 +88,8 @@ class GoCardless_Bill {
 
     $params['http_authorization'] = true;
 
-    return new self($this->client, $this->client->request('post', $endpoint, $params));
+    return new self($this->client, $this->client->request('post', $endpoint,
+      $params));
 
   }
 

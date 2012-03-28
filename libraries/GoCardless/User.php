@@ -31,11 +31,11 @@ class GoCardless_User {
 
     $this->client = $client;
 
-	  if (is_array($attrs)) {
-    	foreach ($attrs as $key => $value) {
-	      $this->$key = $value;
-	    }
-	  }
+    if (is_array($attrs)) {
+      foreach ($attrs as $key => $value) {
+        $this->$key = $value;
+      }
+    }
 
   }
 
@@ -50,7 +50,8 @@ class GoCardless_User {
 
     $endpoint = self::$endpoint . '/' . $id;
 
-    return new self(GoCardless::$client, GoCardless::$client->request('get', $endpoint));
+    return new self(GoCardless::$client, GoCardless::$client->request('get',
+      $endpoint));
 
   }
 

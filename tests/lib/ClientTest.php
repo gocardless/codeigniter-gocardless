@@ -9,87 +9,100 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 			'app_secret'	=> 'xyz',
 			'access_token'	=> 'foo',
 		);
-		
-		// Set the environment to TEST
+
 		GoCardless::$environment = 'sandbox';
+
 	}
 
-	// Porting tests from client.rb
-
 	/**
-	 * Base URL is set correctly for Sandbox
+	 * base_url correct in sandbox
 	 */
 	public function testBaseUrlInSandbox() {
 
 		$client = new GoCardless_Client($this->config);
 
 		$this->assertEquals('https://sandbox.gocardless.com', $client->base_url);
+
 	}
 
 	/**
-	 * Base URL is set correctly for Production
+	 * base_url correct in production
 	 */
 	public function testBaseUrlInProduction() {
 
-		// Set the environment to TEST
+		// Set environment to production
 		GoCardless::$environment = 'production';
 
 		$client = new GoCardless_Client($this->config);
 
 		$this->assertEquals('https://gocardless.com', $client->base_url);
-		
-		// Set the environment to TEST
+
+		// Set environment back to sandbox for remaining tests
 		GoCardless::$environment = 'sandbox';
+
 	}
 
 	/**
-	 * Ensure custom base_url's can be set
+	 * Ensure custom base_url can be set
 	 */
 	public function testBaseUrlSetManually() {
 
 		$config = $this->config;
 
+		// Set custo base_url
 		$config['base_url'] = 'https://abc.gocardless.com';
 
 		$client = new GoCardless_Client($config);
 
 		$this->assertEquals('https://abc.gocardless.com', $client->base_url);
+
 	}
 
 	/**
-	 * Test if an exception is thrown when app_id is missing from Client
+	 * Test if an exception is thrown when app_id is not passed to Client
+	 *
 	 * @expectedException GoCardless_ClientException
 	 */
 	public function testNoAppIdError() {
 
 		$config = $this->config;
+
 		unset($config['app_id']);
 
+    // Instantiate new Client knowing it will throw an exception
 		new GoCardless_Client($config);
+
 	}
 
 	/**
-	 * Test if an exception is thrown when app_secret is missing from Client
+	 * Test if an exception is thrown when app_secret is not passed to Client
+	 *
 	 * @expectedException GoCardless_ClientException
 	 */
 	public function testNoAppSecretError() {
 
 		$config = $this->config;
+
 		unset($config['app_secret']);
 
+    // Instantiate new Client knowing it will throw an exception
 		new GoCardless_Client($config);
+
 	}
 
 	/**
-	 * Test if an exception is thrown when redirect_uri is missing Client
+	 * Test if an exception is thrown when redirect_uri is not passed to
+	 * authorize_url
+	 *
 	 * @expectedException GoCardless_ArgumentsException
 	 */
 	public function testNoRedirectUriError() {
 
-		// Assign as a method for the next test
 		$client = new GoCardless_Client($this->config);
 
+    // Call authorize_url() knowing it will throw an exception
 		$client->authorize_url();
+
 	}
 
 	/**
@@ -109,50 +122,49 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 		parse_str($parts['query'], $params);
 
 		$this->assertEquals($params['response_type'], 'code');
-	    $this->assertEquals($params['redirect_uri'], $redirect_uri);
-	    $this->assertEquals($params['client_id'], $this->config['app_id']);
+	  $this->assertEquals($params['redirect_uri'], $redirect_uri);
+	  $this->assertEquals($params['client_id'], $this->config['app_id']);
+
 	}
 
 	/**
-	 * Test that Access Tokens are requests with the right arguments
+	 * Test that fetch_access_token works with correct arguments
 	 */
 	public function testFetchAccessTokenArguments() {
 
 		$client = new GoCardless_Client(array(
-		  'app_id'        => 'EuHqvzOJfD9NFSACSK8Q0ZfpwpmbyQao4NdYbgi0IidwlQQ_HzIgdrVZsjRUosNc',
-		  'app_secret'    => 'KNa1GoyIKFwcNN_OVdN8D5ykZQkfnCVIyHCFBdP_iXquB7_O7WaZRTWRLhPGsCBQ',
+		  'app_id'        => '123',
+		  'app_secret'    => 'abc',
 		));
-		
-		// Create a Mock Object for the Observer class
-		// mocking only the update() method.
+
+		// Create a mock for the post method of GoCardless_Request
 		$stub = $this->getMock('GoCardless_Request', array('post'));
 
 		// Static dependency injection
 		GoCardless::setClass('Request', get_class($stub));
 
-		// Set up the expectation for the update() method
-		// to be called only once and with the string 'something'
-		// as its parameter.
+		// Set up the expectation for the post() method to be called
 		$stub->staticExpects($this->once())
 			->method('post')
 			->with($this->matchesRegularExpression('#/oauth/access_token#'));
-			
+
 		// Fetching token returns merchant_id and access_token
 		$token = $client->fetch_access_token(array(
 			'client_id'     => $this->config['app_id'],
 			'code'          => 'fakecode',
-			'redirect_uri'  => 'http://localhost/examples/demo_partner.php',
+			'redirect_uri'  => 'http://localhost/examples/partner.php',
 			'grant_type'    => 'authorization_code'
 		));
-		
+
 		$this->arrayHasKey($token, 'access_token');
 		$this->arrayHasKey($token, 'merchant_id');
+
 	}
-	
+
 /*
-  
+
   describe "#fetch_access_token" do
-  
+
       it "sets @access_token" do
         access_token = mock
         access_token.stubs(:params).returns('scope' => '')
@@ -207,80 +219,80 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 
 	*/
 
-	public function testApiUrlFormation()
-	{
-		// Assign as a method for the next test
+  /**
+  * Ensure API url is set up correctly
+  */
+	public function testApiUrlFormation() {
+
 		GoCardless::set_account_details($this->config);
 
-		// Create a Mock Object for the Observer class
-		// mocking only the update() method.
+		// Create a mock for the get method of GoCardless_Request
 		$stub = $this->getMock('GoCardless_Request', array('get'));
 
 		// Static dependency injection
 		GoCardless::setClass('Request', get_class($stub));
 
-		// Set up the expectation for the update() method
-		// to be called only once and with the string 'something'
-		// as its parameter.
+		// Set up the expectation for the get() method to be called
 		$stub->staticExpects($this->once())
 			->method('get')
 			->with($this->matchesRegularExpression('#api/v1/#'));
 
-		// Call Merchant class, knowning it will use our mock to request
+		// Call Merchant class, knowing it will use our mock to request
 		GoCardless_Merchant::find('123');
+
 	}
 
 	/**
-	 * GET requests without an access_token
+	 * Get requests without an access_token should fail
+	 *
 	 * @expectedException GoCardless_ClientException
 	 */
-	public function testApiGetFailsWithoutAccessToken()
-	{
-		// Remove the access token from config
+	public function testApiGetFailsWithoutAccessToken() {
+
 		$config = $this->config;
 
+		// Remove the access token from config
 		unset($config['access_token']);
 
-		// Assign as a method for the next test
 		GoCardless::set_account_details($config);
 
-		// Create a Mock Object for the Observer class
-		// mocking only the update() method.
+		// Create a mock for the get method of GoCardless_Request
 		$stub = $this->getMock('GoCardless_Request', array('get'));
 
 		// Static dependency injection
 		GoCardless::setClass('Request', get_class($stub));
 
-		// Call Merchant class, knowning it will use our mock to request
+		// Call Merchant class, knowing it will throw an exception
 		GoCardless_Merchant::find('123');
+
 	}
-	
+
 	/**
-	 * PO requests without an access_token
+	 * Post requests without an access_token should fail
+	 *
 	 * @expectedException GoCardless_ClientException
 	 */
-	public function testApiPostFailsWithoutAccessToken()
-	{
-		// Remove the access token from config
+	public function testApiPostFailsWithoutAccessToken() {
+
 		$config = $this->config;
 
+		// Remove access_token from config vars
 		unset($config['access_token']);
 
-		// Assign as a method for the next test
 		GoCardless::set_account_details($config);
 
-		// Create a Mock Object for the Observer class
-		// mocking only the update() method.
+		// Create a mock for the post method of GoCardless_Request
 		$stub = $this->getMock('GoCardless_Request', array('post'));
 
 		// Static dependency injection
 		GoCardless::setClass('Request', get_class($stub));
 
+    // Call create_bill() knowing it will throw an exception
 		$bill = GoCardless::$client->create_bill(array(
-		    'pre_authorization_id'  => '014PS77JW3',
+		  'pre_authorization_id'  => '123',
 			'amount'                => '5.00'
-		));	
-    }
+		));
 
+  }
 
 }

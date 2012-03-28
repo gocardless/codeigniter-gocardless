@@ -29,7 +29,7 @@ class GoCardless {
    *
    * @var constant VERSION
    */
-	const VERSION = '0.2.0';
+	const VERSION = '0.2.1';
 
 	/**
 	 * The environment: sandbox or live
@@ -114,10 +114,10 @@ class GoCardless {
 		if ($config['gocardless_mode'] == 'merchant') {
 
 			GoCardless::$client = new GoCardless_Client(array(
-				'app_id' => $config['gocardless_app_id'],
-				'app_secret' => $config['gocardless_app_secret'],
-				'merchant_id' => $config['gocardless_merchant_id'],
-				'access_token' => $config['gocardless_access_token'],
+				'app_id'        => $config['gocardless_app_id'],
+				'app_secret'    => $config['gocardless_app_secret'],
+				'merchant_id'   => $config['gocardless_merchant_id'],
+				'access_token'  => $config['gocardless_access_token'],
 			));
 
 		}
