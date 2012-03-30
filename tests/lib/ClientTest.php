@@ -5,9 +5,10 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 	public function setUp() {
 
 		$this->config = array(
-			'app_id'		=> 'abc',
-			'app_secret'	=> 'xyz',
-			'access_token'	=> 'foo',
+			'app_id'        => 'abc',
+			'app_secret'    => 'xyz',
+			'access_token'  => 'foo',
+			'merchant_id'   => 'bar',
 		);
 
 		GoCardless::$environment = 'sandbox';
@@ -49,7 +50,7 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 
 		$config = $this->config;
 
-		// Set custo base_url
+		// Set custom base_url
 		$config['base_url'] = 'https://abc.gocardless.com';
 
 		$client = new GoCardless_Client($config);
@@ -67,6 +68,7 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 
 		$config = $this->config;
 
+		// Remove app_id from config
 		unset($config['app_id']);
 
     // Instantiate new Client knowing it will throw an exception
@@ -83,6 +85,7 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 
 		$config = $this->config;
 
+		// Remove app_secret from config
 		unset($config['app_secret']);
 
     // Instantiate new Client knowing it will throw an exception
@@ -100,7 +103,8 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 
 		$client = new GoCardless_Client($this->config);
 
-    // Call authorize_url() knowing it will throw an exception
+    // Call authorize_url() without passing redirect_uri as an argument
+    // knowing it will throw an exception
 		$client->authorize_url();
 
 	}
@@ -121,9 +125,9 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 		$parts = parse_url($url);
 		parse_str($parts['query'], $params);
 
-		$this->assertEquals($params['response_type'], 'code');
-	  $this->assertEquals($params['redirect_uri'], $redirect_uri);
-	  $this->assertEquals($params['client_id'], $this->config['app_id']);
+		$this->assertEquals('code', $params['response_type']);
+	  $this->assertEquals($redirect_uri, $params['redirect_uri']);
+	  $this->assertEquals($this->config['app_id'], $params['client_id']);
 
 	}
 
@@ -161,64 +165,6 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 
 	}
 
-/*
-
-  describe "#fetch_access_token" do
-
-      it "sets @access_token" do
-        access_token = mock
-        access_token.stubs(:params).returns('scope' => '')
-        access_token.stubs(:token).returns('')
-
-        oauth_client = @client.instance_variable_get(:@oauth_client)
-        oauth_client.auth_code.expects(:get_token).returns(access_token)
-
-        @client.instance_variable_get(:@access_token).should be_nil
-        @client.fetch_access_token('code', {:redirect_uri => @redirect_uri})
-        @client.instance_variable_get(:@access_token).should == access_token
-      end
-    end
-  end
-
-  describe "#access_token" do
-    it "serializes access token correctly" do
-      oauth_client = @client.instance_variable_get(:@oauth_client)
-      token = OAuth2::AccessToken.new(oauth_client, 'TOKEN123')
-      token.params['scope'] = 'a:1 b:2'
-      @client.instance_variable_set(:@access_token, token)
-
-      @client.access_token.should == 'TOKEN123 a:1 b:2'
-    end
-
-    it "returns nil when there's no token" do
-      @client.access_token.should be_nil
-    end
-  end
-
-  describe "#access_token=" do
-    it "deserializes access token correctly" do
-      @client.access_token = 'TOKEN123 a:1 b:2'
-      token = @client.instance_variable_get(:@access_token)
-      token.token.should == 'TOKEN123'
-      token.params['scope'].should == 'a:1 b:2'
-    end
-
-    it "ignores 'bearer' if it is present at the start of the string" do
-      @client.access_token = 'Bearer TOKEN manage_merchant:123'
-      token = @client.instance_variable_get(:@access_token)
-      token.token.should == 'TOKEN'
-      token.params['scope'].should == 'manage_merchant:123'
-    end
-
-    it "handles invalid values correctly" do
-      token = 'TOKEN123'  # missing scope
-      expect { @client.access_token = token }.to raise_exception ArgumentError
-    end
-  end
-
-
-	*/
-
   /**
   * Ensure API url is set up correctly
   */
@@ -243,56 +189,221 @@ class Test_Client extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * Get requests without an access_token should fail
-	 *
-	 * @expectedException GoCardless_ClientException
-	 */
-	public function testApiGetFailsWithoutAccessToken() {
+  * Test nonces are random
+  */
+	public function testNoncesAreRandom() {
 
-		$config = $this->config;
+		GoCardless::set_account_details($this->config);
 
-		// Remove the access token from config
-		unset($config['access_token']);
-
-		GoCardless::set_account_details($config);
-
-		// Create a mock for the get method of GoCardless_Request
-		$stub = $this->getMock('GoCardless_Request', array('get'));
-
-		// Static dependency injection
-		GoCardless::setClass('Request', get_class($stub));
-
-		// Call Merchant class, knowing it will throw an exception
-		GoCardless_Merchant::find('123');
+    $this->assertNotEquals(
+      GoCardless::$client->generate_nonce(),
+      GoCardless::$client->generate_nonce()
+    );
 
 	}
 
 	/**
-	 * Post requests without an access_token should fail
-	 *
-	 * @expectedException GoCardless_ClientException
-	 */
-	public function testApiPostFailsWithoutAccessToken() {
+  * Test new_limit_url uses correct path
+  */
+	public function testNewLimitUrlUsesCorrectPath() {
 
-		$config = $this->config;
+    GoCardless::set_account_details($this->config);
 
-		// Remove access_token from config vars
-		unset($config['access_token']);
+    $url = GoCardless::$client->new_limit_url('test_limit', array(
+      'amount'  => '30.00',
+    ));
 
-		GoCardless::set_account_details($config);
+    $parts = parse_url($url);
+    $this->assertEquals('/connect/test_limits/new', $parts['path']);
 
-		// Create a mock for the post method of GoCardless_Request
-		$stub = $this->getMock('GoCardless_Request', array('post'));
+	}
 
-		// Static dependency injection
-		GoCardless::setClass('Request', get_class($stub));
+	/**
+  * Test new_limit_url includes params in url
+  */
+	public function testNewLimitUrlIncludesParamsInUrl() {
 
-    // Call create_bill() knowing it will throw an exception
-		$bill = GoCardless::$client->create_bill(array(
-		  'pre_authorization_id'  => '123',
-			'amount'                => '5.00'
-		));
+    GoCardless::set_account_details($this->config);
 
-  }
+    $params = array('a' => '1', 'b' => '2');
+
+    $url = GoCardless::$client->new_limit_url('subscription', $params);
+
+    $parts = parse_url($url);
+		parse_str($parts['query'], $url_params);
+
+		foreach ($params as $key => $value) {
+		  $this->assertEquals($value, $url_params['subscription'][$key]);
+		}
+
+	}
+
+	/**
+  * Test new_limit_url includes state in url
+  */
+	public function testNewLimitUrlIncludesState() {
+
+    GoCardless::set_account_details($this->config);
+
+    $params = array('a' => '1', 'b' => '2', 'state' => 'monkey');
+
+    $url = GoCardless::$client->new_limit_url('subscription', $params);
+
+    $parts = parse_url($url);
+		parse_str($parts['query'], $url_params);
+
+		$this->assertEquals('monkey', $url_params['state']);
+
+	}
+
+	/**
+  * Test new_limit_url includes redirect_uri in url
+  */
+	public function testNewLimitUrlIncludesRedirectUri() {
+
+    GoCardless::set_account_details($this->config);
+
+    $params = array(
+      'a' => '1',
+      'b' => '2',
+      'redirect_uri' => 'http://www.google.com'
+    );
+
+    $url = GoCardless::$client->new_limit_url('subscription', $params);
+
+    $parts = parse_url($url);
+		parse_str($parts['query'], $url_params);
+
+		$this->assertEquals('http://www.google.com', $url_params['redirect_uri']);
+
+	}
+
+	/**
+  * Test new_limit_url adds in merchant_id
+  */
+	public function testNewLimitUrlIncludesMerchantId() {
+
+    GoCardless::set_account_details($this->config);
+
+    $params = array('a' => '1', 'b' => '2');
+
+    $url = GoCardless::$client->new_limit_url('subscription', $params);
+
+    $parts = parse_url($url);
+		parse_str($parts['query'], $url_params);
+
+	  $this->assertEquals('bar', $url_params['subscription']['merchant_id']);
+
+	}
+
+	/**
+  * Test new_limit_url uses a valid sig
+  */
+	public function testNewLimitUrlIncludesValidSig() {
+
+    GoCardless::set_account_details($this->config);
+
+    $params = array('a' => '1', 'b' => '2');
+
+    $url = GoCardless::$client->new_limit_url('subscription', $params);
+
+    $parts = parse_url($url);
+		parse_str($parts['query'], $url_params);
+    $returned_sig = $url_params['signature'];
+    unset($url_params['signature']);
+
+	  $sig = GoCardless_Utils::generate_signature($url_params,
+	      $this->config['app_secret']);
+
+	  $this->assertNotEmpty($returned_sig);
+    $this->assertEquals($sig, $returned_sig);
+
+	}
+
+	/**
+  * Test new_limit_url uses a nonce
+  */
+	public function testNewLimitUrlIncludesNonce() {
+
+    GoCardless::set_account_details($this->config);
+
+    $url = GoCardless::$client->new_limit_url('subscription',
+      array('x' => '1'));
+
+    $parts = parse_url($url);
+		parse_str($parts['query'], $url_params);
+
+	  $this->assertNotEmpty($url_params['nonce']);
+
+	}
+
+	/**
+  * Test new_limit_url adds in client_id
+  */
+	public function testNewLimitUrlIncludesClientId() {
+
+    GoCardless::set_account_details($this->config);
+
+    $url = GoCardless::$client->new_limit_url('subscription',
+      array('x' => '1'));
+
+    $parts = parse_url($url);
+		parse_str($parts['query'], $url_params);
+
+	  $this->assertNotEmpty($url_params['client_id']);
+
+	}
+
+	/**
+  * Test new_limit_url adds valid timestamp
+  */
+	public function testNewLimitUrlIncludesTimestamp() {
+
+    GoCardless::set_account_details($this->config);
+
+    $date = new DateTime(null, new DateTimeZone('UTC'));
+    $timestamp = $date->format('Y-m-d\TH:i:s\Z');
+
+    $url = GoCardless::$client->new_limit_url('subscription',
+      array('x' => '1'));
+
+    $parts = parse_url($url);
+		parse_str($parts['query'], $url_params);
+
+    $this->assertStringMatchesFormat($timestamp, $url_params['timestamp']);
+
+	}
+
+	/**
+  * Test validate_webhook returns false if sig is invalid
+  */
+	public function testValidateWebhookReturnsFalseIfInvalid() {
+
+    GoCardless::set_account_details($this->config);
+
+    $result = GoCardless::$client->validate_webhook(array(
+      'some'      => 'stuff',
+      'signature' => 'fail',
+    ));
+
+    $this->assertFalse($result);
+
+	}
+
+	/**
+  * Test validate_webhook returns true if sig is valid
+  */
+	public function testValidateWebhookReturnsTrueIfValid() {
+
+    GoCardless::set_account_details($this->config);
+
+    $result = GoCardless::$client->validate_webhook(array(
+      'some'      => 'stuff',
+      'signature' => '175e814f0f64e5e86d41fb8fe06a857cedda715a96d3dc3d885e6d97dbeb7e49',
+    ));
+
+    $this->assertTrue($result);
+
+	}
 
 }

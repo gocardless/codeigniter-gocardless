@@ -1,17 +1,17 @@
 <?php
 
-class Test_Bill extends PHPUnit_Framework_TestCase {
+class Test_User extends PHPUnit_Framework_TestCase {
 
 	public function setUp() {
 
-    $this->config = array(
-      'app_id'		=> 'abc',
-      'app_secret'	=> 'xyz',
-      'access_token'  => 'foo'
-    );
+		$this->config = array(
+			'app_id'		=> 'abc',
+			'app_secret'	=> 'xyz',
+			'access_token'	=> 'foo',
+		);
 
     GoCardless::$environment = 'sandbox';
-    GoCardless::set_account_details($this->config);
+	  GoCardless::set_account_details($this->config);
 
 	}
 
@@ -27,13 +27,13 @@ class Test_Bill extends PHPUnit_Framework_TestCase {
 		GoCardless::setClass('Request', get_class($stub));
 
 		// Expected URL
-		$merchant_url = GoCardless::$client->base_url . '/api/v1/merchants/123';
+		$user_url = GoCardless::$client->base_url . '/api/v1/users/123';
 
 		$stub->staticExpects($this->once())
 			->method('get')
-			->with($this->equalTo($merchant_url));
+			->with($this->equalTo($user_url));
 
-		GoCardless_Merchant::find('123');
+		GoCardless_User::find('123');
 
 	}
 
@@ -52,10 +52,10 @@ class Test_Bill extends PHPUnit_Framework_TestCase {
 			->method('get')
 			->will($this->returnValue(array('id' => '123')));
 
-    $bill = GoCardless_Bill::find_with_client(GoCardless::$client, '123');
+    $user = GoCardless_User::find_with_client(GoCardless::$client, '123');
 
-    $this->assertInstanceOf('GoCardless_Bill', $bill);
-    $this->assertEquals('123', $bill->id);
+    $this->assertInstanceOf('GoCardless_User', $user);
+    $this->assertEquals('123', $user->id);
 
 	}
 

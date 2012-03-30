@@ -29,7 +29,7 @@ class GoCardless {
    *
    * @var constant VERSION
    */
-	const VERSION = '0.2.1';
+	const VERSION = '0.2.2';
 
 	/**
 	 * The environment: sandbox or live
@@ -124,6 +124,17 @@ class GoCardless {
 	}
 
 	/**
+	 * Generate a URL to give a user to create a new bill
+	 *
+	 * @param array $params Parameters to use to generate the URL
+	 *
+	 * @return string The generated URL
+	 */
+	public static function new_bill_url($params) {
+		return GoCardless::$client->new_bill_url($params);
+	}
+
+	/**
 	 * Generate a URL to give a user to create a new subscription
 	 *
 	 * @param array $params Parameters to use to generate the URL
@@ -143,17 +154,6 @@ class GoCardless {
 	 */
 	public static function new_pre_authorization_url($params) {
 		return GoCardless::$client->new_pre_authorization_url($params);
-	}
-
-	/**
-	 * Generate a URL to give a user to create a new bill
-	 *
-	 * @param array $params Parameters to use to generate the URL
-	 *
-	 * @return string The generated URL
-	 */
-	public static function new_bill_url($params) {
-		return GoCardless::$client->new_bill_url($params);
 	}
 
 	/**
