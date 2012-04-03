@@ -73,15 +73,17 @@ class GoCardless_Merchant {
   /**
    * Fetch a merchant's subscriptions from the API
    *
+   * @param array $params Params to append to the query ie. for filtering
+   *
    * @return array Array of subscription objects
    */
-  public function subscriptions() {
+  public function subscriptions($params = array()) {
 
     $objects = array();
 
     $endpoint = self::$endpoint . '/' . $this->id . '/subscriptions';
 
-    foreach ($this->client->request('get', $endpoint) as $value) {
+    foreach ($this->client->request('get', $endpoint, $params) as $value) {
       $objects[] = new GoCardless_Subscription($this->client, $value);
     }
 
@@ -91,15 +93,17 @@ class GoCardless_Merchant {
   /**
    * Fetch a merchant's pre-authorisations from the API
    *
+   * @param array $params Params to append to the query ie. for filtering
+   *
    * @return array Array of pre-authorisation objects
    */
-  public function pre_authorizations() {
+  public function pre_authorizations($params = array()) {
 
     $endpoint = self::$endpoint . '/' . $this->id . '/pre_authorizations';
 
     $objects = array();
 
-    foreach ($this->client->request('get', $endpoint) as $value) {
+    foreach ($this->client->request('get', $endpoint, $params) as $value) {
       $objects[] = new GoCardless_PreAuthorization($this->client, $value);
     }
 
@@ -129,15 +133,17 @@ class GoCardless_Merchant {
   /**
    * Fetch a merchant's bills from the API
    *
+   * @param array $params Params to append to the query ie. for filtering
+   *
    * @return array Array of bill objects
    */
-  public function bills() {
+  public function bills($params = array()) {
 
     $endpoint = self::$endpoint . '/' . $this->id . '/bills';
 
     $objects = array();
 
-    foreach ($this->client->request('get', $endpoint) as $value) {
+    foreach ($this->client->request('get', $endpoint, $params) as $value) {
       $objects[] = new GoCardless_Bill($this->client, $value);
     }
 
