@@ -326,7 +326,10 @@ class GoCardless_Client {
       $endpoint = '/' . $params['resource_type'] . 's/' .
         $params['resource_id'];
 
-      return $this->request('get', $endpoint, $params);
+      $class_name = 'GoCardless_' .
+        GoCardless_Utils::camelize($params['resource_type']);
+
+      return new $class_name($this, $this->request('get', $endpoint));
 
     } else {
 
@@ -424,6 +427,11 @@ class GoCardless_Client {
       // access_token found so set Authorization header to contain bearer
       $params['http_bearer'] = $this->account_details['access_token'];
 
+    }
+
+    // Set application specific user agent suffix if found
+    if (isset($this->account_details['ua_tag'])) {
+      $params['ua_tag'] = $this->account_details['ua_tag'];
     }
 
     if (substr($endpoint, 0, 6) == '/oauth') {
