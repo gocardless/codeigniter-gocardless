@@ -59,19 +59,24 @@ class GoCardless_Request {
    */
   protected static function call($method, $url, $params = array()) {
 
+    // Initialize curl
     $ch = curl_init();
 
+    // Default curl options, including library & version number
     $curl_options = array(
       CURLOPT_CONNECTTIMEOUT  => 10,
       CURLOPT_RETURNTRANSFER  => true,
       CURLOPT_TIMEOUT         => 60,
-      CURLOPT_USERAGENT       => 'gocardless-php-v' . GoCardless::VERSION
+      CURLOPT_USERAGENT       => 'gocardless-php/v' . GoCardless::VERSION
     );
 
     // Set application specific user agent suffix if found
     if (isset($params['ua_tag'])) {
 
+      // Set the user agent header
       $curl_options[CURLOPT_USERAGENT] .= ' ' . $params['ua_tag'];
+
+      // Remove ua_tag from $params as $params are used later
       unset($params['ua_tag']);
 
     }
@@ -82,22 +87,30 @@ class GoCardless_Request {
     // HTTP Authentication (for confirming new payments)
     if (isset($params['http_authorization'])) {
 
+      // Set HTTP Basic Authorization header
       $curl_options[CURLOPT_USERPWD] = $params['http_authorization'];
+
+      // Unset http basic param as params are used later
       unset($params['http_authorization']);
 
     } else {
 
+      // Throw an exception if access token is missing
       if ( ! isset($params['http_bearer'])) {
         throw new GoCardless_ClientException('Access token missing');
       }
 
+      // Set the authorization header
       $curl_options[CURLOPT_HTTPHEADER][] = 'Authorization: Bearer ' .
         $params['http_bearer'];
+
+      // Unset http_bearer param as params are used later
       unset($params['http_bearer']);
 
     }
 
     if ($method == 'post') {
+      // Curl options for POSt
 
       $curl_options[CURLOPT_POST] = 1;
 
@@ -107,15 +120,19 @@ class GoCardless_Request {
       }
 
     } elseif ($method == 'get') {
+      // Curl options for GET
 
       $curl_options[CURLOPT_HTTPGET] = 1;
+
       if ( ! empty($params)) {
         $url .= '?' . http_build_query($params, null, '&');
       }
 
     } elseif ($method == 'put') {
+      // Curl options for PUT
 
       $curl_options[CURLOPT_PUT] = 1;
+
       $fh = fopen('php://memory', 'rw+');
       $curl_options[CURLOPT_INFILE] = $fh;
       $curl_options[CURLOPT_INFILESIZE] = 0;
@@ -126,65 +143,50 @@ class GoCardless_Request {
     curl_setopt($ch, CURLOPT_URL, $url);
 
     // Debug
-    //if ($method == 'post') {
-    //  // POST request, so show url and vars
-    //  $vars = htmlspecialchars(print_r($curl_options[CURLOPT_POSTFIELDS], true));
-    //  echo "<pre>\n\nRequest\n\nPOST: $url\n";
-    //  echo "Post vars sent:\n";
-    //  echo "$vars\n";
-    //  echo "Full curl vars:\n";
-    //  print_r($curl_options);
-    //  echo '</pre>';
-    //} elseif ($method == 'get') {
-    //  // GET request, so show just show url
-    //  echo "<pre>\n\nRequest\nGET: $url\n";
-    //  echo "Full curl vars: ";
-    //  print_r($curl_options);
-    //  echo '</pre>';
-    //} else {
-    //  echo "Method not set!";
+    //echo "<pre>\nCurl " . strtoupper($method) . " request to: $url\n";
+    //if (isset($curl_options[CURLOPT_POSTFIELDS])) {
+    //  echo "Post vars:\n";
+    //  echo htmlspecialchars(print_r($curl_options[CURLOPT_POSTFIELDS], true));
+    //  echo "\n";
     //}
+    //echo "Curl request config:\n";
+    //print_r($curl_options);
+    //echo '</pre>';
 
+    // Set curl options
     curl_setopt_array($ch, $curl_options);
 
+    // Send the request
     $result = curl_exec($ch);
 
     // Debug
-    //echo "<pre>\nCurl result: ";
+    //echo "<pre>\nCurl result config:\n";
     //print_r(curl_getinfo($ch));
+    //echo "Curl result:\n";
+    //echo htmlspecialchars($result) . "\n";
     //echo "</pre>";
 
     // Grab the response code and throw an exception if it's not good
     $http_response_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     if ($http_response_code < 200 || $http_response_code > 300) {
 
-      $response = json_decode($result, true);
+      // Create a string
+      $message = print_r(json_decode($result, true), true);
 
-      // Convert json blob API error messages into a readable string
-      // One layer of recursion due to arbitrary keys
-      $message = '';
-      if (is_array($response)) {
-        foreach ($response as $key => $value) {
-          if (is_array($value)) {
-            foreach ($value as $key2 => $value2) {
-              $message .= $key2 . ' : ' . $value2 . '. ';
-            }
-          } else {
-            $message .= $key . ' : ' . $value . '. ';
-          }
-        }
-      }
-
+      // Throw an exception with the error message
       throw new GoCardless_ApiException($message, $http_response_code);
 
     }
 
+    // Close the connection
     curl_close($ch);
 
+    // Close the $fh handle used by PUT
     if (isset($fh)) {
       fclose($fh);
     }
 
+    // Return the response as an array
     return json_decode($result, true);
 
   }

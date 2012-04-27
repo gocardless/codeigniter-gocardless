@@ -10,7 +10,7 @@
  * GoCardless pre-authorization class
  *
  */
-class GoCardless_PreAuthorization {
+class GoCardless_PreAuthorization extends GoCardless_Resource {
 
   /**
    * The API endpoint for pre-authorizations

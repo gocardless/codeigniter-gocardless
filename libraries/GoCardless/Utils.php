@@ -62,7 +62,11 @@ class GoCardless_Utils {
       }
 
       sort($pairs);
-      $strs = array_map('implode', array_fill(0, count($pairs), '='), $pairs);
+
+      $strs = array();
+      foreach ($pairs as $pair) {
+        $strs[] = $pair[0] . '=' . $pair[1];
+      }
 
       return implode('&', $strs);
 
@@ -84,6 +88,25 @@ class GoCardless_Utils {
   public static function camelize($string) {
 
     return implode(array_map('ucfirst', explode('_', $string)));
+
+  }
+
+  /**
+   * Convert a word to the singular
+   *
+   * @param string $string The string to process
+   *
+   * @return string The result
+   */
+  public static function singularize($string) {
+
+    if (substr($string, -1) == 's') {
+      return substr($string, 0, -1);
+    } elseif (substr($string, -1) == 'i') {
+      return substr($string, 0, -1) . 'us';
+    } else {
+      return $string;
+    }
 
   }
 

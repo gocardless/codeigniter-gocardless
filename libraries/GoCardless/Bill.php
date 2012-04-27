@@ -10,7 +10,7 @@
  * GoCardless bill class
  *
  */
-class GoCardless_Bill {
+class GoCardless_Bill extends GoCardless_Resource {
 
   /**
    * The API endpoint for bills

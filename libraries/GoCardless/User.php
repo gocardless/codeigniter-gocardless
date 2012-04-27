@@ -10,7 +10,7 @@
  * GoCardless user class
  *
  */
-class GoCardless_User {
+class GoCardless_User extends GoCardless_Resource {
 
   /**
    * The API endpoint for users

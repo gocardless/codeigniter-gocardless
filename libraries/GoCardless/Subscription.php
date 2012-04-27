@@ -10,7 +10,7 @@
  * GoCardless subscription class
  *
  */
-class GoCardless_Subscription {
+class GoCardless_Subscription extends GoCardless_Resource {
 
   /**
    * The API endpoint for subscriptions

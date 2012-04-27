@@ -12,15 +12,64 @@ class Test_Utils extends PHPUnit_Framework_TestCase {
 		);
 
 		GoCardless::$environment = 'sandbox';
+		GoCardless::set_account_details($this->config);
 
 	}
+
+	/**
+	 * Check camelize function
+	 */
+	public function testCamelize() {
+
+	  $return = GoCardless_Utils::camelize('a_test_string');
+
+    $this->assertEquals('ATestString', $return);
+
+  }
+
+	/**
+	 * Check singularize function
+	 */
+	public function testSingularize() {
+
+	  $a = GoCardless_Utils::singularize('desks');
+    $this->assertEquals('desk', $a);
+
+    $b = GoCardless_Utils::singularize('cacti');
+    $this->assertEquals('cactus', $b);
+
+  }
+
+	/**
+	 * Test generate_query_string joins items with equals
+	 */
+	public function testGenerateQueryStringJoinsItemsWithEquals() {
+
+    $params = array('a' => 'b');
+
+  	$return = GoCardless_Utils::generate_query_string($params);
+
+    $this->assertEquals("a=b", $return);
+
+  }
+
+	/**
+	 * Test generate_query_string joins pairs with ampersands
+	 */
+	public function testGenerateQueryStringJoinsPairsWithAmpersands() {
+
+    $params = array('a' => 'b', 'c' => 'd');
+
+  	$return = GoCardless_Utils::generate_query_string($params);
+
+    $this->assertEquals("a=b&c=d", $return);
+
+  }
 
 	/**
 	 * Check the signature is being generated correctly
 	 */
 	public function testGenerateSignature() {
-
-		GoCardless::set_account_details($this->config);
 
 		$payment_details = array(
 		  'amount'          => '10.00',
@@ -34,5 +83,29 @@ class Test_Utils extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('889b12a1aa31ca4c804d8554d4991fccc2d6d269bca4a20ecde6ef0cc20abc9c', $sig);
 
 	}
+
+	/**
+	 * Check generate_query_string returns empty string when empty array passed
+	 */
+	public function testGenerateQueryStringReturnWhenEmptyArrayPassed() {
+
+    $return = GoCardless_Utils::generate_query_string(array());
+
+    $this->assertEquals('', $return);
+
+  }
+
+	/**
+	 * Check generate_query_string works with integer keys and values
+	 */
+	public function testGenerateQueryStringWorksWithIntegerKeysAndValues() {
+
+    //$params = array('123' => '456');
+    //
+	  //$return = GoCardless_Utils::generate_query_string($params);
+    //
+    //$this->assertEquals('123=456', $return);
+
+  }
 
 }
