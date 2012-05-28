@@ -30,13 +30,13 @@ $ git clone git://github.com/gocardless/codeigniter-gocardless.git application/t
 
 #### Download the Zip
 
-[Click here](https://github.com/gocardless/codeigniter-gocardless/zipball/0.3.1)
+[Click here](https://github.com/gocardless/codeigniter-gocardless/zipball/0.3.2)
 to download the zip file.
 
 #### Installing with Sparks
 
 ```console
-$ php tools/spark install -v0.3.1 gocardless
+$ php tools/spark install -v0.3.2 gocardless
 ```
 
 ### Usage
@@ -47,5 +47,5 @@ the following to load the spark:
 
 ```php
 $this->config->load('gocardless');
-$this->load->spark('gocardless/0.3.1');
+$this->load->spark('gocardless/0.3.2');
 ```
