@@ -83,17 +83,8 @@ class GoCardless {
    */
   public static function autoload($class) {
     if (strpos($class, 'GoCardless') === 0) {
-      require dirname(__FILE__).'/'.str_replace('_', '/', $class).'.php';
+      require str_replace('_', '/', $class).'.php';
     }
-  }
-
-  /**
-   * Constructor
-   *
-   * @param $config array Passed by the CodeIgniter Loader
-   */
-  public function __construct($config) {
-    $this->initialize($config);
   }
 
   /**
@@ -101,26 +92,8 @@ class GoCardless {
    *
    * @param array $account_details Array of account details
    */
-  public function initialize($config) {
-
-    if ( ! isset($config['gocardless_mode'])) {
-      throw new Exception('Missing parameter "mode" from GoCardless config.');
-    }
-
-    // Set the environment
-    empty($config['gocardless_environment']) or self::$environment = $config['gocardless_environment'];
-
-    // Merchants need a little special treatment
-    if ($config['gocardless_mode'] == 'merchant') {
-
-      GoCardless::$client = new GoCardless_Client(array(
-        'app_id'        => $config['gocardless_app_id'],
-        'app_secret'    => $config['gocardless_app_secret'],
-        'merchant_id'   => $config['gocardless_merchant_id'],
-        'access_token'  => $config['gocardless_access_token'],
-      ));
-
-    }
+  public static function set_account_details($account_details) {
+    GoCardless::$client = new GoCardless_Client($account_details);
   }
 
   /**
