@@ -75,4 +75,26 @@ class GoCardless_Bill extends GoCardless_Resource {
 
   }
 
+  /**
+   * Attempt to collect a bill with status 'failed' again
+   *
+   * @return object The result of the retry query
+   */
+  public function retry() {
+
+    $endpoint = self::$endpoint . '/' . $this->id . '/retry';
+
+    return new self($this->client, $this->client->request('post', $endpoint));
+
+  }
+
+  /**
+   * Fetch the payout for a bill, if a payout_id is recorded
+   * @return object A GoCardless_Payout object representing the payout
+   */
+  public function payout() {
+    if (!$this->payout_id) { throw new GoCardless_ClientException("Cannot fetch payout for a bill that has not been paid out"); }
+    return GoCardless_Payout::find_with_client($this->client, $this->payout_id);
+  }
+
 }

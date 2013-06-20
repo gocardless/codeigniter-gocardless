@@ -84,6 +84,10 @@ class GoCardless_Request {
     // Request format
     $curl_options[CURLOPT_HTTPHEADER][] = 'Accept: application/json';
 
+    // Enable SSL certificate validation.
+    // This is true by default since libcurl 7.1.
+    $curl_options[CURLOPT_SSL_VERIFYPEER] = true;
+
     // Debug - DO NOT USE THIS IN PRODUCTION FOR SECURITY REASONS
     //
     // This fixes a problem in some environments with connecting to HTTPS-enabled servers.
@@ -141,7 +145,11 @@ class GoCardless_Request {
 
       $curl_options[CURLOPT_PUT] = 1;
 
+      // Receiving the following Curl error?:
+      //    "cannot represent a stream of type MEMORY as a STDIO FILE*"
+      // Try changing the first parameter of fopen() to `php://temp`
       $fh = fopen('php://memory', 'rw+');
+
       $curl_options[CURLOPT_INFILE] = $fh;
       $curl_options[CURLOPT_INFILESIZE] = 0;
 
@@ -189,7 +197,7 @@ class GoCardless_Request {
       $message = print_r(json_decode($result, true), true);
 
       // Throw an exception with the error message
-      throw new GoCardless_ApiException($message, $http_response_code);
+      throw new GoCardless_ApiException($message, $http_response_code, $result);
 
     }
 

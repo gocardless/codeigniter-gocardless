@@ -1,3 +1,7 @@
+## 0.4.1 - June 20, 2013
+
+- Updated the bundled PHP library version to 0.4.1
+
 ## 0.3.3 - August 2, 2012
 
 - Bundled SSL certificates with library.
